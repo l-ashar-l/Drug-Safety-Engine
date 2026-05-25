@@ -16,6 +16,16 @@ export default function HomePage() {
   const [enhancedResponse, setEnhancedResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [newPatientName, setNewPatientName] = useState('');
+  const [newPatientAge, setNewPatientAge] = useState('65');
+  const [newPatientSex, setNewPatientSex] = useState<'male' | 'female'>('male');
+  const [newPatientConditions, setNewPatientConditions] = useState('');
+  const [newPatientAllergies, setNewPatientAllergies] = useState('');
+  const [newPatientMedications, setNewPatientMedications] = useState('');
+  const [newPatientCreatinine, setNewPatientCreatinine] = useState('1.0');
+  const [newPatientSummary, setNewPatientSummary] = useState('');
+  const [creatingPatient, setCreatingPatient] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   useEffect(() => {
     const loadPatients = async () => {
@@ -55,6 +65,60 @@ export default function HomePage() {
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ')}`;
   }, [patient]);
+
+  const parseList = (value: string) =>
+    value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+  const handleCreatePatient = async () => {
+    setCreateError('');
+    setCreatingPatient(true);
+
+    try {
+      if (!newPatientName.trim() || !newPatientSummary.trim()) {
+        throw new Error('Please provide name and summary for the patient.');
+      }
+
+      const response = await fetch('/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newPatientName.trim(),
+          age: Number(newPatientAge),
+          sex: newPatientSex,
+          conditions: parseList(newPatientConditions),
+          allergies: parseList(newPatientAllergies),
+          medications: parseList(newPatientMedications),
+          labs: {
+            creatinine: Number(newPatientCreatinine || 0),
+          },
+          summary: newPatientSummary.trim(),
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to create patient.');
+      }
+
+      setPatients((current) => [...current, data]);
+      setSelectedPatientId(String(data.id));
+      setNewPatientName('');
+      setNewPatientAge('65');
+      setNewPatientSex('male');
+      setNewPatientConditions('');
+      setNewPatientAllergies('');
+      setNewPatientMedications('');
+      setNewPatientCreatinine('1.0');
+      setNewPatientSummary('');
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to add patient.');
+    } finally {
+      setCreatingPatient(false);
+    }
+  };
 
   const handleSubmit = async () => {
     setError('');
@@ -113,7 +177,7 @@ export default function HomePage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Drug Safety Engine</p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">Make AI safe for doctors</h1>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">Safe AI for Doctors</h1>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">
                 Deterministic drug interaction, allergy, and renal dosing checks run before the AI responds. Compare generic versus safety-enhanced output side-by-side.
               </p>
@@ -144,6 +208,116 @@ export default function HomePage() {
                 </select>
               </div>
             </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold">Add patient</h2>
+                  <p className="mt-1 text-sm text-slate-500">Create a new patient record in the database.</p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Name</label>
+                  <input
+                    type="text"
+                    value={newPatientName}
+                    onChange={(event) => setNewPatientName(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700">Age</label>
+                    <input
+                      type="number"
+                      value={newPatientAge}
+                      onChange={(event) => setNewPatientAge(event.target.value)}
+                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700">Sex</label>
+                    <select
+                      value={newPatientSex}
+                      onChange={(event) => setNewPatientSex(event.target.value as 'male' | 'female')}
+                      className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Conditions</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. htn, t2dm"
+                    value={newPatientConditions}
+                    onChange={(event) => setNewPatientConditions(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Allergies</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. penicillin"
+                    value={newPatientAllergies}
+                    onChange={(event) => setNewPatientAllergies(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Medications</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. atorvastatin, amlodipine"
+                    value={newPatientMedications}
+                    onChange={(event) => setNewPatientMedications(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Serum creatinine</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newPatientCreatinine}
+                    onChange={(event) => setNewPatientCreatinine(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Summary</label>
+                  <textarea
+                    rows={3}
+                    value={newPatientSummary}
+                    onChange={(event) => setNewPatientSummary(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-500"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCreatePatient}
+                  disabled={creatingPatient}
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                >
+                  {creatingPatient ? 'Creating patient...' : 'Add patient'}
+                </button>
+
+                {createError ? <p className="text-sm text-rose-600">{createError}</p> : null}
+              </div>
+            </div>
+
             {patient ? (
               <PatientCard patient={patient} />
             ) : (
@@ -190,10 +364,10 @@ export default function HomePage() {
                 cha2ds2vasc={safetyResults.cha2ds2vasc}
               />
             ) : null}
+
+            <ResponseComparison generic={genericResponse} enhanced={enhancedResponse} loading={loading} />
           </div>
         </section>
-
-        <ResponseComparison generic={genericResponse} enhanced={enhancedResponse} loading={loading} />
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold">How it works</h2>
