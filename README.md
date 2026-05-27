@@ -20,7 +20,7 @@ A full-stack clinical safety demo: deterministic drug interaction, allergy, rena
    npm run dev
    ```
 
-4. Load Supabase schema and seed data in `supabase/schema.sql` and `supabase/seed.sql`.
+4. Load Supabase schema and seed data in `supabase/schema.sql` from `supabase/seed.sql`.
 
 ## Project structure
 
