@@ -7,8 +7,6 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         const { question, patientSummary, safetyText, mode } = body;
-        console.debug("🚀 ~ POST ~ safetyText:", safetyText)
-        console.debug("🚀 ~ POST ~ patientSummary:", patientSummary)
         const provider = process.env.LLM_PROVIDER ?? 'anthropic';
         const apiKey = process.env.LLM_API_KEY;
 
