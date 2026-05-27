@@ -1,9 +1,9 @@
 INSERT INTO public.patients (name, age, sex, weight_kg, conditions, allergies, medications, labs, summary) VALUES
-('Patient 1', 65, 'male', NULL, '["t2dm"]', '["penicillin"]', '["Metformin", "Glimepiride", "Telmisartan", "Atorvastatin"]', '{"creatinine": 2.1, "egfr": 31.2, "hba1c": 8.4, "k": 5.1, "troponin": 4.8, "bp": "90/60", "hr": 110, "spo2": 94}', '65M with type 2 diabetes, CKD stage 3b, penicillin anaphylaxis.'),
-('Patient 2', 58, 'female', NULL, '[]', '[]', '["Enoxaparin", "Paracetamol", "Tramadol", "Pantoprazole"]', '{"creatinine": 0.9, "egfr": 82, "hgb": 10.2}', '58F with pain control needs and mild anemia.'),
-('Patient 3', 78, 'male', NULL, '["ckd", "hpn"]', '["sulfonamide"]', '["Amlodipine", "Telmisartan", "Metformin", "Glimepiride", "Atorvastatin", "Aspirin", "Pantoprazole", "Escitalopram", "Tamsulosin", "Paracetamol", "Diclofenac"]', '{"creatinine": 1.4, "egfr": 48, "k": 4.8}', '78M with polypharmacy, sulfonamide rash history, CKD stage 3a.'),
+('Patient 1', 65, 'male', 65, '["t2dm"]', '["penicillin"]', '["Metformin", "Glimepiride", "Telmisartan", "Atorvastatin"]', '{"creatinine": 2.1, "egfr": 31.2, "hba1c": 8.4, "k": 5.1, "troponin": 4.8, "bp": "90/60", "hr": 110, "spo2": 94}', '65M with type 2 diabetes, CKD stage 3b, penicillin anaphylaxis.'),
+('Patient 2', 58, 'female', 55, '[]', '[]', '["Enoxaparin", "Paracetamol", "Tramadol", "Pantoprazole"]', '{"creatinine": 0.9, "egfr": 82, "hgb": 10.2}', '58F with pain control needs and mild anemia.'),
+('Patient 3', 78, 'male', 70, '["ckd", "hpn"]', '["sulfonamide"]', '["Amlodipine", "Telmisartan", "Metformin", "Glimepiride", "Atorvastatin", "Aspirin", "Pantoprazole", "Escitalopram", "Tamsulosin", "Paracetamol", "Diclofenac"]', '{"creatinine": 1.4, "egfr": 48, "k": 4.8}', '78M with polypharmacy, sulfonamide rash history, CKD stage 3a.'),
 ('Patient 4', 6, 'male', 20, '["epilepsy"]', '[]', '["Sodium Valproate", "Levetiracetam"]', '{"valproate_level": 85}', '6yo child with epilepsy on valproate and levetiracetam.'),
-('Patient 5', 62, 'male', NULL, '["hf"]', '["ace inhibitor"]', '["Furosemide", "Carvedilol", "Amlodipine", "Erythropoietin", "Calcium"]', '{"creatinine": 4.8, "egfr": 12, "k": 5.6}', '62M with heart failure, advanced CKD, ACE inhibitor angioedema.');
+('Patient 5', 62, 'male', 65, '["hf"]', '["ace inhibitor"]', '["Furosemide", "Carvedilol", "Amlodipine", "Erythropoietin", "Calcium"]', '{"creatinine": 4.8, "egfr": 12, "k": 5.6}', '62M with heart failure, advanced CKD, ACE inhibitor angioedema.');
 
 INSERT INTO public.drugs (generic_name, generic_name_normalized, drug_class, renal_dosing) VALUES
 ('Metformin', 'metformin', 'biguanide', '{"rules": [{"maxEGR": 30, "action": "contraindicated", "message": "eGFR < 30: contraindicated"}]}'),

@@ -173,12 +173,24 @@ export function computeSafetyFromAllergies(
 }
 
 export function buildConstraintText(results: SafetyResults): string {
-  const topFindings = [...results.findings].sort((a, b) => b.importance - a.importance).slice(0, 8);
-  const lines = topFindings.map((finding) => `- ${finding.detail}`);
-  lines.unshift(`Safety constraints for this patient:`);
+  const hardBlocks = results.findings.filter((finding) => finding.type === 'HARD_BLOCK');
+  const warnings = results.findings.filter((finding) => finding.type !== 'HARD_BLOCK');
+  const lines = ['Safety constraints for this patient:'];
+
+  if (hardBlocks.length > 0) {
+    lines.push('HARD BLOCKS (mandatory):');
+    lines.push(...hardBlocks.map((finding) => `- ${finding.detail}`));
+  }
+
+  if (warnings.length > 0) {
+    lines.push('WARNINGS:');
+    lines.push(...warnings.map((finding) => `- ${finding.detail}`));
+  }
+
   lines.push(`Computed eGFR: ${results.egfr} mL/min/1.73m²`);
   lines.push(`Computed CHA₂DS₂-VASc: ${results.cha2ds2vasc}`);
-  lines.push(`Follow hard blocks and warnings before answering clinical questions.`);
+  lines.push('Do not violate any HARD BLOCKS. Treat HARD BLOCKS as required clinical rules.');
+  lines.push('If a proposed therapy conflicts with a HARD BLOCK, explicitly refuse and recommend a safer alternative if available.');
   return lines.join('\n');
 }
 

@@ -9,20 +9,20 @@ import type { Patient, SafetyResults } from '../lib/types';
 export default function HomePage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState('');
-  const [proposedDrug, setProposedDrug] = useState('Clarithromycin');
-  const [question, setQuestion] = useState('Can I add Clarithromycin 500mg for pneumonia?');
+  const [proposedDrug, setProposedDrug] = useState('');
+  const [question, setQuestion] = useState('');
   const [safetyResults, setSafetyResults] = useState<SafetyResults | null>(null);
   const [genericResponse, setGenericResponse] = useState('');
   const [enhancedResponse, setEnhancedResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newPatientName, setNewPatientName] = useState('');
-  const [newPatientAge, setNewPatientAge] = useState('65');
+  const [newPatientAge, setNewPatientAge] = useState('');
   const [newPatientSex, setNewPatientSex] = useState<'male' | 'female'>('male');
   const [newPatientConditions, setNewPatientConditions] = useState('');
   const [newPatientAllergies, setNewPatientAllergies] = useState('');
   const [newPatientMedications, setNewPatientMedications] = useState('');
-  const [newPatientCreatinine, setNewPatientCreatinine] = useState('1.0');
+  const [newPatientCreatinine, setNewPatientCreatinine] = useState('');
   const [newPatientSummary, setNewPatientSummary] = useState('');
   const [creatingPatient, setCreatingPatient] = useState(false);
   const [createError, setCreateError] = useState('');
@@ -106,12 +106,12 @@ export default function HomePage() {
       setPatients((current) => [...current, data]);
       setSelectedPatientId(String(data.id));
       setNewPatientName('');
-      setNewPatientAge('65');
+      setNewPatientAge('');
       setNewPatientSex('male');
       setNewPatientConditions('');
       setNewPatientAllergies('');
       setNewPatientMedications('');
-      setNewPatientCreatinine('1.0');
+      setNewPatientCreatinine('');
       setNewPatientSummary('');
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : 'Failed to add patient.');
@@ -145,6 +145,16 @@ export default function HomePage() {
       }
       setSafetyResults(safetyData);
 
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unexpected error');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    setLoading(true);
+    const callAI = async () => {
       const renderAI = async (mode: 'generic' | 'enhanced') => {
         const response = await fetch('/api/claude', {
           method: 'POST',
@@ -152,23 +162,20 @@ export default function HomePage() {
           body: JSON.stringify({
             question,
             patientSummary,
-            safetyText: mode === 'enhanced' ? safetyData.alertText : undefined,
+            safetyText: mode === 'enhanced' ? safetyResults?.alertText : undefined,
             mode,
           }),
         });
         const data = await response.json();
         return data.response ?? data.error ?? 'No response received.';
       };
-
       const [generic, enhanced] = await Promise.all([renderAI('generic'), renderAI('enhanced')]);
       setGenericResponse(generic);
       setEnhancedResponse(enhanced);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unexpected error');
-    } finally {
       setLoading(false);
     }
-  };
+    callAI();
+  },[safetyResults]);
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-8">
@@ -208,7 +215,13 @@ export default function HomePage() {
                 </select>
               </div>
             </div>
-
+            {patient ? (
+              <PatientCard patient={patient} />
+            ) : (
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 text-slate-500 shadow-sm">
+                Loading patient data from the database...
+              </div>
+            )}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
@@ -317,14 +330,6 @@ export default function HomePage() {
                 {createError ? <p className="text-sm text-rose-600">{createError}</p> : null}
               </div>
             </div>
-
-            {patient ? (
-              <PatientCard patient={patient} />
-            ) : (
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 text-slate-500 shadow-sm">
-                Loading patient data from the database...
-              </div>
-            )}
           </div>
 
           <div className="space-y-6">

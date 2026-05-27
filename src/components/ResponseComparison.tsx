@@ -1,3 +1,6 @@
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 export function ResponseComparison({ generic, enhanced, loading }: { generic: string; enhanced: string; loading: boolean }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -10,13 +13,25 @@ export function ResponseComparison({ generic, enhanced, loading }: { generic: st
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
               <span className="rounded-full bg-red-100 px-2 py-1">Generic AI</span>
             </div>
-            <div className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{generic || 'No response yet.'}</div>
+            <div className="prose prose-sm max-w-none prose-slate prose-headings:text-slate-900prose-strong:text-red-700 prose-table:border prose-th:border prose-td:border prose-li:my-1">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+              >
+                {generic || 'No response yet.'}
+              </ReactMarkdown>
+            </div>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
               <span className="rounded-full bg-emerald-100 px-2 py-1">Safety-enhanced AI</span>
             </div>
-            <div className="whitespace-pre-wrap text-sm leading-6 text-slate-800">{enhanced || 'No response yet.'}</div>
+            <div className="prose prose-sm max-w-none prose-slate prose-headings:text-slate-900prose-strong:text-red-700 prose-table:border prose-th:border prose-td:border prose-li:my-1">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+              >
+                {enhanced || 'No response yet.'}
+              </ReactMarkdown>
+            </div>
           </div>
         </div>
       )}
